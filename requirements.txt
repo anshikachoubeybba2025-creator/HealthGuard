@@ -1,0 +1,4 @@
+flask
+joblib
+# Pin scikit-learn to the exact version used in Colab (run: import sklearn; print(sklearn.__version__))
+scikit-learn==1.6.1

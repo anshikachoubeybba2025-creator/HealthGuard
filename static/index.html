@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HealthGuard is an educational prototype for exploring machine-learning classification of health claims.">
+  <title>HealthGuard | Health Claim Analysis</title>
+  <style>
+    :root {
+      --ivory: #F7F3EB;
+      --berry: #B85F70;
+      --rose: #DCA9A6;
+      --sage: #A8B9A2;
+      --gold: #D8C49A;
+      --glacier: #A9C7D4;
+      --midnight: #244A70;
+      --blue: #416F96;
+      --ink: #26394A;
+      --muted: #71808B;
+      --line: #E6E0D6;
+      --white: #FFFEFB;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(rgba(12,30,52,0.30), rgba(12,30,52,0.50)),
+        url("bg.jpg") center / cover no-repeat;
+    }
+
+    button, textarea { font: inherit; }
+
+    .page-shell {
+      width: min(1160px, calc(100% - 44px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      height: 82px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(36,74,112,.13);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--midnight);
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.6px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: var(--ivory);
+      background: var(--midnight);
+      font-size: 23px;
+    }
+
+    .top-note {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .5px;
+    }
+
+    .hero {
+      padding: 58px 0 34px;
+      max-width: 770px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      border: 1px solid #DCD8CE;
+      border-radius: 999px;
+      background: rgba(255,254,251,.66);
+      color: var(--midnight);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--berry);
+    }
+
+    h1 {
+      margin: 22px 0 17px;
+      color: var(--midnight);
+      font-size: clamp(39px, 6vw, 64px);
+      line-height: 1.06;
+      letter-spacing: -2.8px;
+      font-weight: 800;
+    }
+
+    h1 span { color: var(--berry); }
+
+    .hero-copy {
+      max-width: 640px;
+      margin: 0;
+      color: #63717D;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(275px, .85fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .input-card, .side-card, .result-card {
+      border: 1px solid rgba(36,74,112,.11);
+      border-radius: 22px;
+      background: rgba(255,254,251,.91);
+      box-shadow: 0 12px 36px rgba(36,74,112,.055);
+    }
+
+    .input-card { padding: 30px; }
+
+    .card-heading, .result-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .section-kicker {
+      margin: 0 0 10px;
+      color: var(--berry);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+    }
+
+    h2 {
+      margin: 0 0 25px;
+      color: var(--midnight);
+      font-size: 24px;
+      letter-spacing: -.7px;
+    }
+
+    .sparkle, .result-symbol {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: var(--midnight);
+      background: #EAF1F2;
+      font-size: 21px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: #455665;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 165px;
+      resize: vertical;
+      border: 1px solid #DADFE0;
+      border-radius: 14px;
+      outline: none;
+      background: var(--white);
+      padding: 15px 16px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.7;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(65,111,150,.12);
+    }
+
+    textarea::placeholder { color: #A1A9AE; }
+
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 9px 1px 20px;
+      color: #929CA2;
+      font-size: 11px;
+    }
+
+    .primary-button {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+      padding: 15px 18px;
+      border: none;
+      border-radius: 12px;
+      background: var(--midnight);
+      color: white;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .primary-button:hover {
+      background: var(--blue);
+      transform: translateY(-1px);
+    }
+
+    .primary-button:disabled {
+      cursor: wait;
+      opacity: .75;
+      transform: none;
+    }
+
+    .primary-button span { font-size: 19px; }
+
+    .side-card {
+      padding: 27px 25px;
+      background: rgba(235,242,242,.78);
+    }
+
+    .side-icon {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 22px;
+      border-radius: 14px;
+      background: var(--glacier);
+      color: var(--midnight);
+      font-size: 23px;
+    }
+
+    .side-card h3 {
+      margin: 0 0 12px;
+      color: var(--midnight);
+      font-size: 21px;
+      line-height: 1.35;
+      letter-spacing: -.5px;
+    }
+
+    .side-card .description {
+      margin: 0;
+      color: #647580;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .pipeline { margin: 23px 0 20px; }
+
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step-number {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #D6E0E0;
+      border-radius: 10px;
+      background: var(--white);
+      color: var(--midnight);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .pipeline-step strong, .pipeline-step small { display: block; }
+    .pipeline-step strong { margin-bottom: 3px; color: var(--midnight); font-size: 12px; }
+    .pipeline-step small { color: #849198; font-size: 11px; }
+    .pipeline-line { height: 14px; margin-left: 14px; border-left: 1px solid #C6D4D5; }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 11px;
+      border-radius: 10px;
+      background: #F4EBD8;
+      color: #785D2E;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .result-card {
+      margin-top: 22px;
+      padding: 28px 30px;
+      display: none;
+    }
+
+    .result-card.visible { display: block; }
+
+    .result-card h2 { margin-bottom: 15px; }
+
+    .result-label {
+      display: inline-block;
+      padding: 12px 17px;
+      border-radius: 12px;
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .result-true { color: #315F4A; background: #E2EEE5; }
+    .result-false { color: #8C4050; background: #F7E5E7; }
+    .result-neutral { color: var(--midnight); background: #EAF1F2; }
+
+    .confidence {
+      margin: 14px 0 8px;
+      color: #526572;
+      font-size: 13px;
+    }
+
+    .result-note {
+      margin: 14px 0 0;
+      color: #71808B;
+      font-size: 12px;
+      line-height: 1.75;
+    }
+
+    .info-strip {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      margin-top: 22px;
+      padding: 18px 20px;
+      border: 1px solid #E6D9BE;
+      border-radius: 15px;
+      background: rgba(248,241,223,.72);
+    }
+
+    .info-symbol {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #604F2D;
+      font-family: Georgia, serif;
+      font-weight: 700;
+    }
+
+    .info-strip p {
+      margin: 0;
+      color: #75694F;
+      font-size: 12px;
+      line-height: 1.75;
+    }
+
+    .info-strip strong { color: #5D4D30; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 30px 0 36px;
+      color: #89949A;
+      font-size: 11px;
+    }
+
+    .footer-mark { padding: 0 4px; color: var(--berry); }
+
+    @media (max-width: 760px) {
+      .page-shell { width: min(100% - 30px, 580px); }
+      .topbar { height: 72px; }
+      .top-note { font-size: 10px; }
+      .hero { padding: 42px 0 28px; }
+      h1 { letter-spacing: -1.8px; }
+      .hero-copy { font-size: 14px; }
+      .workspace { grid-template-columns: 1fr; }
+      .input-card, .side-card, .result-card { padding: 23px; border-radius: 18px; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+
+    /* ===== Winter whimsical theme: midnight, frost, gold and berry artwork ===== */
+    :root {
+      --ivory: #13263D; --berry: #E8C98A; --rose: #E8C98A; --sage: #B8D4E3; --gold: #E8C98A;
+      --glacier: #B8D4E3; --midnight: #F5F7FA; --blue: #B8D4E3; --ink: #F5F7FA; --muted: #C9DCE7;
+      --line: rgba(184,212,227,.28); --white: #0E2440;
+    }
+    body { color: #F5F7FA; }
+    .topbar { border-bottom: 1px solid rgba(184,212,227,.25); }
+    .brand { color: #F5F7FA; font-size: 40px; letter-spacing: -.6px; line-height: 1.1; }
+    .top-note { color: #C9DCE7; }
+    .eyebrow { border: 1px solid rgba(184,212,227,.35); background: rgba(14,36,64,.72); color: #F5F7FA; }
+    .eyebrow-dot { background: #E8C98A; }
+    h1 { color: #F5F7FA; text-shadow: 0 2px 18px rgba(8,20,36,.45); }
+    h1 span { color: #E8C98A; }
+    .hero-copy { color: #E3EEF5; text-shadow: 0 1px 10px rgba(8,20,36,.5); }
+    .input-card, .side-card, .result-card { border: 1px solid rgba(184,212,227,.30); background: rgba(14,36,64,.80); box-shadow: 0 16px 40px rgba(6,16,30,.45); backdrop-filter: blur(6px); }
+    .section-kicker { color: #E8C98A; }
+    h2 { color: #F5F7FA; }
+    .sparkle, .result-symbol { color: #13263D; background: #B8D4E3; }
+    label { color: #DCE8F0; }
+    textarea { border: 1px solid rgba(184,212,227,.35); background: rgba(8,22,40,.65); color: #F5F7FA; }
+    textarea:focus { border-color: #E8C98A; box-shadow: 0 0 0 4px rgba(232,201,138,.18); }
+    textarea::placeholder { color: #8FA6B8; }
+    .input-footer { color: #A9BFD0; }
+    .primary-button { background: #E8C98A; color: #13263D; }
+    .primary-button:hover { background: #F2DCA8; }
+    .side-icon { background: #B8D4E3; color: #13263D; }
+    .side-card h3 { color: #F5F7FA; }
+    .side-card .description { color: #C9DCE7; }
+    .step-number { border: 1px solid rgba(184,212,227,.4); background: rgba(8,22,40,.6); color: #E8C98A; }
+    .pipeline-step strong { color: #F5F7FA; }
+    .pipeline-step small { color: #A9BFD0; }
+    .pipeline-line { border-left: 1px solid rgba(184,212,227,.35); }
+    .status { background: rgba(232,201,138,.14); color: #F2DCA8; border: 1px solid rgba(232,201,138,.35); }
+    .result-true { color: #13263D; background: #B8D4E3; }
+    .result-false { color: #13263D; background: #E8C98A; }
+    .result-neutral { color: #F5F7FA; background: rgba(184,212,227,.18); }
+    .confidence { color: #DCE8F0; }
+    .result-note { color: #C9DCE7; }
+    .info-strip { border: 1px solid rgba(232,201,138,.35); background: rgba(14,36,64,.80); }
+    .info-symbol { background: #E8C98A; color: #13263D; }
+    .info-strip p { color: #E3EEF5; }
+    .info-strip strong { color: #F2DCA8; }
+    footer { color: #C9DCE7; text-shadow: 0 1px 8px rgba(8,20,36,.5); }
+    .footer-mark { color: #E8C98A; }
+
+    .explanation { margin: 14px 0 6px; padding: 14px 16px; border-radius: 14px; background: rgba(184,212,227,.10); border: 1px solid rgba(184,212,227,.25); color: #E3EEF5; font-size: 13px; line-height: 1.7; }
+    .explanation h4 { margin: 0 0 6px; color: #E8C98A; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; }
+    .explanation p { margin: 6px 0; }
+    .explanation .chips span { display: inline-block; margin: 2px 4px 2px 0; padding: 3px 9px; border-radius: 999px; font-size: 12px; }
+    .explanation .t { background: #B8D4E3; color: #13263D; }
+    .explanation .f { background: #E8C98A; color: #13263D; }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand">
+        
+        <span>HealthGuard</span>
+      </div>
+      <span class="top-note">AI · CLAIM ANALYSIS</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> A student machine-learning project</div>
+        <h1>Pause. Check.<br><span>Understand the claim.</span></h1>
+        <p class="hero-copy">
+          Explore how an AI model classifies health-related statements. Enter a claim below to see the model's prediction.
+        </p>
+      </section>
+
+      <section class="workspace">
+        <div class="input-card">
+          <div class="card-heading">
+            <div>
+              <p class="section-kicker">01 / YOUR CLAIM</p>
+              <h2>What did you read?</h2>
+            </div>
+            <span class="sparkle" aria-hidden="true">✦</span>
+          </div>
+
+          <form id="claim-form">
+            <label for="claim">Paste a health-related statement</label>
+            <textarea id="claim" name="claim" maxlength="3000" placeholder="Example: A health-related statement you would like the model to classify..." required></textarea>
+            <div class="input-footer">
+              <span>Up to 3,000 characters</span>
+              <span id="char-count">0 / 3000</span>
+            </div>
+            <button type="submit" class="primary-button" id="submit-button">
+              Analyse claim <span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </div>
+
+        <aside class="side-card">
+          <div class="side-icon" aria-hidden="true">✧</div>
+          <p class="section-kicker">HOW IT WORKS</p>
+          <h3>A model prediction, not a medical verdict.</h3>
+          <p class="description">
+            HealthGuard uses a text-classification model trained on a health-claim dataset. Its output reflects patterns learned from that dataset—not independent medical verification.
+          </p>
+
+          <div class="pipeline">
+            <div class="pipeline-step">
+              <span class="step-number">1</span>
+              <div><strong>Text input</strong><small>Your health claim</small></div>
+            </div>
+            <div class="pipeline-line"></div>
+            <div class="pipeline-step">
+              <span class="step-number">2</span>
+              <div><strong>Language features</strong><small>TF-IDF representation</small></div>
+            </div>
+            <div class="pipeline-line"></div>
+            <div class="pipeline-step">
+              <span class="step-number">3</span>
+              <div><strong>Classification</strong><small>Trained ML model</small></div>
+            </div>
+          </div>
+
+          <div class="status" id="model-status">
+            <span class="status-dot"></span>
+            <span>Model connected · Predictions come from the trained model</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="result-card" id="result-card" aria-live="polite">
+        <div class="result-heading">
+          <div>
+            <p class="section-kicker">02 / MODEL OUTPUT</p>
+            <h2>Your classification</h2>
+          </div>
+          <span class="result-symbol" aria-hidden="true">✦</span>
+        </div>
+        <div class="result-label result-neutral" id="result-label">Waiting for model</div>
+        <p class="confidence" id="confidence" hidden></p>
+        <div class="explanation" id="explanation" hidden></div>
+        <p class="result-note" id="result-note"></p>
+      </section>
+
+      <section class="info-strip">
+        <div class="info-symbol" aria-hidden="true">i</div>
+        <p><strong>Important:</strong> HealthGuard is an educational prototype, not a diagnostic tool or fact-checking authority. Do not use its output to make treatment decisions.</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>HealthGuard <span class="footer-mark">✳</span> Bias &amp; Explainability Project</span>
+      <span>Built for learning, designed for careful interpretation.</span>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById("claim-form");
+    const claimInput = document.getElementById("claim");
+    const charCount = document.getElementById("char-count");
+    const submitButton = document.getElementById("submit-button");
+    const resultCard = document.getElementById("result-card");
+    const resultLabel = document.getElementById("result-label");
+    const confidenceText = document.getElementById("confidence");
+    const resultNote = document.getElementById("result-note");
+
+    claimInput.addEventListener("input", () => {
+      charCount.textContent = `${claimInput.value.length} / 3000`;
+    });
+
+
+    function renderExplanation(e) {
+      const box = document.getElementById("explanation");
+      if (!e) { box.hidden = true; box.innerHTML = ""; return; }
+      const chips = (list, cls) => list.map(x => `<span class="${cls}">${x.word} (${x.weight})</span>`).join("") || "<em>none</em>";
+      const note = e.known_terms === 0
+        ? "None of the words in this claim are in the model's vocabulary, so the answer comes mainly from the model's baseline. That baseline leans toward True, because about 63% of the training claims are True."
+        : `Your claim has ${e.known_terms} matching ${e.known_terms === 1 ? "term" : "terms"} that the model learned from the training data. The weights below show which of them pushed the answer.`;
+      box.innerHTML =
+        "<h4>Why this result</h4>" +
+        `<p>${note}</p>` +
+        `<p><strong>Pushing toward TRUE:</strong><br><span class="chips">${chips(e.toward_true, "t")}</span></p>` +
+        `<p><strong>Pushing toward FALSE:</strong><br><span class="chips">${chips(e.toward_false, "f")}</span></p>` +
+        "<p>The model compares your claim with patterns in the PUBHEALTH training data. It does not look up the claim or check it against a source, so treat this as a pattern-based guess.</p>";
+      box.hidden = false;
+    }
+
+    function showMessage(title, message) {
+      resultCard.classList.add("visible");
+      resultLabel.className = "result-label result-neutral";
+      resultLabel.textContent = title;
+      confidenceText.hidden = true;
+      confidenceText.textContent = "";
+      renderExplanation(null);
+      resultNote.textContent = message;
+      resultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const claim = claimInput.value.trim();
+
+      if (!claim) {
+        showMessage("Claim required", "Enter a health-related claim before submitting.");
+        return;
+      }
+
+      /*
+        BACKEND CONNECTION:
+        When we connect the trained Colab pipeline using Flask, this page will send
+        the claim to POST /predict as JSON: {"claim": "..."}.
+        The backend should return JSON such as:
+        {"prediction": 0} or {"prediction": 1}
+        Optional: {"prediction": 1, "confidence": 0.82}
+        Use the actual model's label mapping; do not assume labels until verified.
+      */
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Checking connection… <span aria-hidden="true">↻</span>';
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ claim })
+        });
+
+        if (!response.ok) {
+          throw new Error("The prediction service is not available yet.");
+        }
+
+        const data = await response.json();
+        const prediction = data.prediction ?? data.label;
+
+        if (prediction === undefined || prediction === null) {
+          throw new Error("The prediction service returned an unexpected response.");
+        }
+
+        const normalized = String(prediction).toLowerCase();
+        let labelText;
+
+        if (normalized === "1" || normalized === "true" || normalized.includes("true")) {
+          labelText = "Model prediction: TRUE";
+          resultLabel.className = "result-label result-true";
+        } else if (normalized === "0" || normalized === "false" || normalized.includes("false")) {
+          labelText = "Model prediction: FALSE";
+          resultLabel.className = "result-label result-false";
+        } else {
+          labelText = `Model prediction: ${data.label ?? prediction}`;
+          resultLabel.className = "result-label result-neutral";
+        }
+
+        resultCard.classList.add("visible");
+        resultLabel.textContent = labelText;
+
+        if (typeof data.confidence === "number") {
+          const percentage = data.confidence <= 1 ? data.confidence * 100 : data.confidence;
+          confidenceText.hidden = false;
+          confidenceText.textContent = `Reported model confidence: ${percentage.toFixed(1)}%`;
+        } else {
+          confidenceText.hidden = true;
+        }
+
+        renderExplanation(data.explanation);
+        resultNote.textContent = "This is an automated model classification, not proof that a claim is true or false. Verify health information using reliable medical sources and consult a qualified health professional for medical decisions.";
+        resultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } catch (error) {
+        showMessage(
+          "Model connection not set up yet",
+          "The website page is ready, but it cannot produce real predictions until we connect your trained Colab model through a Python backend. No prediction has been made. We'll set up that connection next."
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Analyse claim <span aria-hidden="true">→</span>';
+      }
+    });
+  </script>
+</body>
+</html>
